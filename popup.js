@@ -1,24 +1,60 @@
-const messageBox = document.getElementById('messageBox')
 const startButton = document.getElementById('startButton')
-startButton.addEventListener('click', async() => {
-    let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+const backButton = document.getElementById('backButton')
+const layButton = document.getElementById('layButton')
+const oddsInput = document.getElementById('oddsInput')
+const tickInput = document.getElementById('tickInput')
+const messageBox = document.getElementById('messageBox')
 
-    chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        function: setPageBackgroundColor,
-    });
+let state;
+
+startButton.addEventListener('click', async() => {
+    if (typeof state !== "number" || !oddsInput.value || !tickInput.value) {
+        appendMessage('ERROR: could not start')
+
+    } else {
+        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+        chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            files: ['background.js'],
+        });
+
+        const initialData = {type: state, odds: oddsInput.value, tick: tickInput.value}
+
+        setTimeout(() => {
+
+            chrome.runtime.sendMessage({initialData: initialData}, function (response){
+                console.log(response)
+                createMessage('started')
+                startButton.disabled = true
+            });
+        }, 2000)
+    }
+
 })
 
-function setPageBackgroundColor() {
-    const data = document.getElementById('locate_logs').textContent
-    console.log(data)
-    chrome.runtime.sendMessage({text: data}, function (response){
-        console.log(response)
-    });
+backButton.addEventListener('click', () => {
+    state = 1
+    backButton.style.backgroundColor = 'lightblue'
+    layButton.style.backgroundColor = 'wheat'
+})
 
-    // chrome.storage.sync.get("color", ({ color }) => {
-    //     document.body.style.backgroundColor = color;
-    // });
+layButton.addEventListener('click', () => {
+    state = 0
+    layButton.style.backgroundColor = 'red'
+    backButton.style.backgroundColor = 'wheat'
+})
+
+function appendMessage(message){
+    const div = document.createElement('div');
+    div.innerText = createMessage(message)
+    div.style.whiteSpace = 'nowrap'
+    messageBox.appendChild(div)
+}
+
+function createMessage(message) {
+    const date = new Date();
+    return message + ' : ' + date.getHours() + ':' + date.getMinutes()
 }
 
 chrome.storage.sync.get("color", ({ color }) => {

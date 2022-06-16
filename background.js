@@ -1,6 +1,22 @@
-let color = '#3aa757';
+// const blueCell = document.getElementsByClassName('js-blue-cell')
 
-chrome.runtime.onInstalled.addListener(() => {
-    chrome.storage.sync.set({ color });
-    console.log('Default background color set to %cgreen', `color: ${color}`);
+// console.log(blueCell)
+
+// chrome.runtime.sendMessage({text: data}, function (response){
+//     console.log(response)
+// });
+
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
+    console.log('received')
+    if ('initialData' in request) {
+        type = request.initialData.type;
+        odds = request.initialData.odds;
+        tick = request.initialData.tick;
+        sendResponse('initialData: received')
+        listenForChange(type, odds, tick)
+    }
 });
+
+function listenForChange(type, odds, tick) {
+    console.log(type, odds, tick)
+}

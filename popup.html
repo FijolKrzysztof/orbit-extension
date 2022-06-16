@@ -5,9 +5,19 @@
     <title>Orbit</title>
 </head>
 <body>
-    <h1>Orbit</h1>
-    <button id="startButton">Start</button>
-    <div id="messageBox">hello</div>
+    <div style="display: flex; flex-direction: column; justify-content: center; text-align: center">
+        <h1>Orbit</h1>
+        <button style="margin: 5px" id="startButton">START</button>
+        <div style="display: flex; justify-content: space-around; margin: 10px">
+            <button id="backButton" style="background-color: wheat">BACK</button>
+            <button id="layButton" style="background-color: wheat">LAY</button>
+        </div>
+        <div>
+            <label for="oddsInput"></label><input style="margin: 5px" id="oddsInput" type="number" placeholder="ODDS">
+            <label for="tickInput"></label><input style="margin: 5px" id="tickInput" type="number" placeholder="TICK">
+        </div>
+        <div id="messageBox"></div>
+    </div>
 </body>
 <script src="popup.js"></script>
 </html>
