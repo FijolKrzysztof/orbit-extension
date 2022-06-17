@@ -9,12 +9,13 @@
         <h1>Orbit</h1>
         <button style="margin: 5px" id="startButton">START</button>
         <div style="display: flex; justify-content: space-around; margin: 10px">
-            <button id="backButton" style="background-color: wheat">BACK</button>
-            <button id="layButton" style="background-color: wheat">LAY</button>
+            <button style="background-color: wheat" id="backButton">BACK</button>
+            <button style="background-color: wheat" id="layButton">LAY</button>
         </div>
-        <div>
-            <label for="oddsInput">ODDS</label><input style="margin: 5px" id="oddsInput" type="number" placeholder="ODDS">
-            <label for="tickInput">TICK</label><input style="margin: 5px" id="tickInput" type="number" placeholder="TICK">
+        <label for="tickInput">TICK</label><input style="margin: 5px" id="tickInput" type="number" placeholder="TICK" value="2">
+        <div style="display: flex; justify-content: center">
+            <button style="margin: 5px" id="previousButton"><<</button>
+            <button style="margin: 5px" id="nextButton">>></button>
         </div>
         <div id="messageBox"></div>
     </div>

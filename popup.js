@@ -1,35 +1,43 @@
 const startButton = document.getElementById('startButton')
 const backButton = document.getElementById('backButton')
 const layButton = document.getElementById('layButton')
-const oddsInput = document.getElementById('oddsInput')
+const previousButton = document.getElementById('previousButton')
+const nextButton = document.getElementById('nextButton')
 const tickInput = document.getElementById('tickInput')
 const messageBox = document.getElementById('messageBox')
 
 let state;
+let elem = 0;
 
 startButton.addEventListener('click', async() => {
-    if (typeof state !== "number" || !oddsInput.value || !tickInput.value) {
+    if (typeof state !== "number" || !tickInput.value || typeof elem !== 'number') {
         appendMessage('ERROR: could not start')
 
     } else {
         let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
 
-        chrome.scripting.executeScript({
-            target: { tabId: tab.id },
-            files: ['background.js'],
-        });
-
-        const initialData = {type: state, odds: oddsInput.value, tick: tickInput.value}
-
-        setTimeout(() => {
-
-            chrome.runtime.sendMessage({initialData: initialData}, function (response){
-                console.log(response)
+        chrome.storage.local.set({
+            initialData: {type: state, tick: tickInput.value, elem}
+        }, () => {
+            chrome.scripting.executeScript({
+                target: { tabId: tab.id },
+                files: ['background.js'],
+            }, () => {
+                chrome.tabs.sendMessage(tab.id, {scriptOptions: {param1:'value1',param2:'value2'}}, function(){
+                    //all injected
+                });
                 createMessage('started')
                 startButton.disabled = true
-            });
-        }, 2000)
+            })
+        });
     }
+})
+
+previousButton.addEventListener('click', () => {
+
+})
+
+nextButton.addEventListener('click', () => {
 
 })
 
@@ -54,18 +62,16 @@ function appendMessage(message){
 
 function createMessage(message) {
     const date = new Date();
-    return message + ' : ' + date.getHours() + ':' + date.getMinutes()
+    return message + ' : '
+        + (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':'
+        + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes())
 }
 
-chrome.storage.sync.get("color", ({ color }) => {
-    messageBox.innerText = color;
-});
-
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
-    if ('text' in request) {
-        messageBox.innerText = request.text
-        sendResponse('text: received')
-    }
+    // if ('text' in request) {
+    //     messageBox.innerText = request.text
+    //     sendResponse('text: received')
+    // }
     // if (sender.tab && request.greeting == "hello")
     //     sendResponse({farewell: "goodbye"});
     // else
