@@ -1,34 +1,46 @@
-// const blueCell = document.getElementsByClassName('js-blue-cell')
-
-// console.log(blueCell)
-
-// chrome.runtime.sendMessage({text: data}, function (response){
-//     console.log(response)
-// });
+let current
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
-    console.log('received')
-    if ('initialData' in request) {
-        type = request.initialData.type;
-        tick = request.initialData.tick;
-        sendResponse('initialData: received')
-        listenForChange(type, odds, tick)
-    }
-});
+    if ('start' in request) {
+        const priceElems = document.getElementsByClassName('js-price');
 
-chrome.storage.local.get('initialData', (items) => {
-    type = items.initialData.type
-    tick = items.initialData.tick
-    elem = items.initialData.elem
+        if (!priceElems.length) {
+            sendResponse('ERROR: no closing bet')
+        } else {
+            sendResponse('started')
 
-    odds = document.getElementsByClassName('js-price')[0].value
-    targetClassName = type ? 'js-blue-cell' : 'js-green-cell'
+            setInterval(() => {
+                const odds = priceElems[0].value
+                const target = document.getElementsByClassName(current.targetClassName)[current.elem].children[0].children[0].children[0].children[0]
 
-    setInterval(() => {
-       target = document.getElementsByClassName(targetClassName)[elem].children[0].children[0].children[0].children[0]
+                if (current.targetClassName === 'js-blue-cell' && odds <= target.textContent
+                    || current.targetClassName === 'js-green-cell' && odds <= target.textContent) {
 
-        if (type && odds <= target.textContent || !type && odds <= target.textContent) {
-
+                }
+            }, 1000)
         }
-    }, 1000)
+    }
+
+    if ('next' in request) {
+        const elem = request.next.elem
+        const type = request.next.type
+
+        const targetClassName = type ? 'js-blue-cell' : 'js-green-cell'
+
+        try {
+            const target = document.getElementsByClassName(targetClassName)[elem]
+            target.style.border = '2px solid black'
+
+            if (current) {
+                const prevTarget = document.getElementsByClassName(current.targetClassName)[current.elem]
+                prevTarget.style.border = ''
+            }
+
+            current = {elem, targetClassName}
+
+            sendResponse('next: received')
+        } catch (err) {
+            sendResponse(elem - 1)
+        }
+    }
 });

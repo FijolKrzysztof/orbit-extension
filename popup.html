@@ -7,16 +7,16 @@
 <body>
     <div style="display: flex; flex-direction: column; justify-content: center; text-align: center">
         <h1>Orbit</h1>
-        <button style="margin: 5px" id="startButton">START</button>
-        <div style="display: flex; justify-content: space-around; margin: 10px">
-            <button style="background-color: wheat" id="backButton">BACK</button>
-            <button style="background-color: wheat" id="layButton">LAY</button>
+        <button style="margin: 5px" id="startButton" disabled>START</button>
+        <div style="display: flex; justify-content: space-around">
+            <button style="background-color: wheat; margin: 5px; width: 50px" id="backButton">BACK</button>
+            <button style="background-color: wheat; margin: 5px; width: 50px" id="layButton">LAY</button>
         </div>
-        <label for="tickInput">TICK</label><input style="margin: 5px" id="tickInput" type="number" placeholder="TICK" value="2">
         <div style="display: flex; justify-content: center">
-            <button style="margin: 5px" id="previousButton"><<</button>
-            <button style="margin: 5px" id="nextButton">>></button>
+            <button style="margin: 5px" id="previousButton" disabled><<</button>
+            <button style="margin: 5px" id="nextButton" disabled>>></button>
         </div>
+        <button style="margin: 5px" id="initialStartButton" disabled>INITIAL START</button>
         <div id="messageBox"></div>
     </div>
 </body>

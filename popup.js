@@ -3,77 +3,91 @@ const backButton = document.getElementById('backButton')
 const layButton = document.getElementById('layButton')
 const previousButton = document.getElementById('previousButton')
 const nextButton = document.getElementById('nextButton')
-const tickInput = document.getElementById('tickInput')
+const initialStartButton = document.getElementById('initialStartButton')
 const messageBox = document.getElementById('messageBox')
 
+let tab;
+
+(async function () {
+    [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+})()
+
 let state;
-let elem = 0;
+let elem;
+let maxElem = 1000;
 
-startButton.addEventListener('click', async() => {
-    if (typeof state !== "number" || !tickInput.value || typeof elem !== 'number') {
-        appendMessage('ERROR: could not start')
+startButton.addEventListener('click', () => {
+    chrome.tabs.sendMessage(tab.id, {start: true}, (response) => {
+        createMessage(response)
+        startButton.disabled = true
+    });
+})
 
-    } else {
-        let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-
-        chrome.storage.local.set({
-            initialData: {type: state, tick: tickInput.value, elem}
-        }, () => {
-            chrome.scripting.executeScript({
-                target: { tabId: tab.id },
-                files: ['background.js'],
-            }, () => {
-                chrome.tabs.sendMessage(tab.id, {scriptOptions: {param1:'value1',param2:'value2'}}, function(){
-                    //all injected
-                });
-                createMessage('started')
-                startButton.disabled = true
-            })
-        });
-    }
+initialStartButton.addEventListener('click', () => {
+    chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        files: ['background.js'],
+    }, () => {
+        nextButton.disabled = false
+        previousButton.disabled = false
+        initialStartButton.disabled = true
+    })
 })
 
 previousButton.addEventListener('click', () => {
+    if (typeof elem !== 'number') { elem = 1 }
+    if (elem > 0) {
+        elem --
 
+        chrome.tabs.sendMessage(tab.id, {next: {elem, type: state}}, (response) => {
+            createMessage(response)
+            startButton.disabled = false
+        });
+    } else {
+        createMessage('ERROR: no more elements')
+    }
 })
 
 nextButton.addEventListener('click', () => {
+    if (typeof elem !== 'number') { elem = -1 }
+    if (elem < maxElem) {
+        elem++
 
+        chrome.tabs.sendMessage(tab.id, {next: {elem, type: state}}, (response) => {
+            if (typeof response === 'number') {
+                maxElem = response
+                elem --;
+                createMessage('new maxElem: ' + response)
+            } else {
+                createMessage(response)
+                startButton.disabled = false
+            }
+        });
+    } else {
+        createMessage('ERROR: no more elements')
+    }
 })
 
 backButton.addEventListener('click', () => {
     state = 1
     backButton.style.backgroundColor = 'lightblue'
     layButton.style.backgroundColor = 'wheat'
+    initialStartButton.disabled = false
 })
 
 layButton.addEventListener('click', () => {
     state = 0
     layButton.style.backgroundColor = 'red'
     backButton.style.backgroundColor = 'wheat'
+    initialStartButton.disabled = false
 })
 
-function appendMessage(message){
+function createMessage(message){
     const div = document.createElement('div');
-    div.innerText = createMessage(message)
+    const date = new Date();
+    div.innerText = message + ' : '
+        + (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':'
+        + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes())
     div.style.whiteSpace = 'nowrap'
     messageBox.appendChild(div)
 }
-
-function createMessage(message) {
-    const date = new Date();
-    return message + ' : '
-        + (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':'
-        + (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes())
-}
-
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
-    // if ('text' in request) {
-    //     messageBox.innerText = request.text
-    //     sendResponse('text: received')
-    // }
-    // if (sender.tab && request.greeting == "hello")
-    //     sendResponse({farewell: "goodbye"});
-    // else
-    //     sendResponse({}); // snub them.
-});
