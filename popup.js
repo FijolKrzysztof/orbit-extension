@@ -7,14 +7,29 @@ const initialStartButton = document.getElementById('initialStartButton')
 const messageBox = document.getElementById('messageBox')
 
 let tab;
-
-(async function () {
-    [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-})()
-
 let state;
 let elem;
 let maxElem = 1000;
+
+(async function () {
+    [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+
+    chrome.tabs.sendMessage(tab.id, {initialStart: true}, (response) => {
+        if (response) {
+            chrome.storage.local.get(['initialStart'], (data) => {
+                if (data?.initialStart) {
+                    data.initialStart?.state ? setBackState() : setLayState()
+                    setInitialStart()
+                }
+            })
+            chrome.storage.local.get(['elem'], (data) => {
+                if (data?.elem) {
+                    elem = data.elem?.value
+                }
+            })
+        }
+    });
+})()
 
 startButton.addEventListener('click', () => {
     chrome.tabs.sendMessage(tab.id, {start: true}, (response) => {
@@ -26,11 +41,12 @@ startButton.addEventListener('click', () => {
 initialStartButton.addEventListener('click', () => {
     chrome.scripting.executeScript({
         target: { tabId: tab.id },
-        files: ['background.js'],
+        files: ['page.js'],
     }, () => {
-        nextButton.disabled = false
-        previousButton.disabled = false
-        initialStartButton.disabled = true
+        setInitialStart()
+        chrome.storage.local.set({initialStart: {state}})
+        state ? setBackState() : setLayState()
+        nextButton.click()
     })
 })
 
@@ -40,8 +56,8 @@ previousButton.addEventListener('click', () => {
         elem --
 
         chrome.tabs.sendMessage(tab.id, {next: {elem, type: state}}, (response) => {
+            chrome.storage.local.set({elem: {value: elem}})
             createMessage(response)
-            startButton.disabled = false
         });
     } else {
         createMessage('ERROR: no more elements')
@@ -59,8 +75,8 @@ nextButton.addEventListener('click', () => {
                 elem --;
                 createMessage('new maxElem: ' + response)
             } else {
+                chrome.storage.local.set({elem: {value: elem}})
                 createMessage(response)
-                startButton.disabled = false
             }
         });
     } else {
@@ -69,18 +85,38 @@ nextButton.addEventListener('click', () => {
 })
 
 backButton.addEventListener('click', () => {
+    setBackState()
+})
+
+layButton.addEventListener('click', () => {
+    setLayState()
+})
+
+function setBackState() {
     state = 1
     backButton.style.backgroundColor = 'lightblue'
     layButton.style.backgroundColor = 'wheat'
     initialStartButton.disabled = false
-})
+}
 
-layButton.addEventListener('click', () => {
+function setLayState() {
     state = 0
     layButton.style.backgroundColor = 'red'
     backButton.style.backgroundColor = 'wheat'
     initialStartButton.disabled = false
-})
+}
+
+function setInitialStart() {
+    nextButton.disabled = false
+    previousButton.disabled = false
+    backButton.disabled = true
+    layButton.disabled = true
+    startButton.disabled = false
+    setTimeout(() => {
+        initialStartButton.disabled = true
+    })
+
+}
 
 function createMessage(message){
     const div = document.createElement('div');
