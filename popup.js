@@ -27,6 +27,11 @@ let maxElem = 1000;
                     elem = data.elem?.value
                 }
             })
+            chrome.storage.local.get(['start'], (data) => {
+                if (data?.start) {
+                    setStart()
+                }
+            })
         }
     });
 })()
@@ -34,7 +39,8 @@ let maxElem = 1000;
 startButton.addEventListener('click', () => {
     chrome.tabs.sendMessage(tab.id, {start: true}, (response) => {
         createMessage(response)
-        startButton.disabled = true
+        setStart()
+        chrome.storage.local.set({start: true})
     });
 })
 
@@ -91,6 +97,12 @@ backButton.addEventListener('click', () => {
 layButton.addEventListener('click', () => {
     setLayState()
 })
+
+function setStart() {
+    startButton.disabled = true
+    nextButton.disabled = true
+    previousButton.disabled = true
+}
 
 function setBackState() {
     state = 1
