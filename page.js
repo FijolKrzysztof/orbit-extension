@@ -59,7 +59,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
 
     function placeBet() {
         let placeBetButton = document.getElementById('biab_placeBetsBtn')
-        placeBetButton.click()
+        const e = document.createEvent("MouseEvents");
+        e.initMouseEvent("click", true, true, window, 0, 0, 0, 0, 0, false,
+            false, false, false, 0, null);
+        placeBetButton.dispatchEvent(e);
         placeBetButton = document.getElementById('biab_placeBetsBtn')
         if (!placeBetButton) {
             console.log('Bet placed')
