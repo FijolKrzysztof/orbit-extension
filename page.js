@@ -67,7 +67,9 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
         if (!placeBetButton) {
             console.log('Bet placed')
         } else {
-            placeBet()
+            setTimeout(() => {
+                placeBet()
+            }, 100)
         }
     }
 });
