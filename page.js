@@ -21,6 +21,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
                     || current.targetClassName === 'js-green-cell' && odds <= target.textContent) {
                     makeSound()
                     clearInterval(interval)
+                    placeBet()
                 }
             }, 1000)
         }
@@ -47,6 +48,18 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
         } catch (err) {
             sendResponse(elem - 1)
         }
+    }
+
+    function placeBet() {
+        const button = document.getElementById('biab_placeBetsBtn');
+        const evt = new MouseEvent("mousedown", {
+            view: window,
+            bubbles: true,
+            cancelable: true,
+            clientX: 0,
+            clientY: 0,
+        });
+        button.dispatchEvent(evt)
     }
 
     function makeSound() {
