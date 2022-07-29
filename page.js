@@ -16,12 +16,13 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
             const interval = setInterval(() => {
                 const odds = priceElems[0].value
                 const target = document.getElementsByClassName(current.targetClassName)[current.elem].children[0].children[0].children[0].children[0]
+                console.log('inside interval')
 
                 if (current.targetClassName === 'js-blue-cell' && odds >= target.textContent
                     || current.targetClassName === 'js-green-cell' && odds <= target.textContent) {
+                    placeBet()
                     makeSound()
                     clearInterval(interval)
-                    placeBet()
                 }
             }, 1000)
         }
