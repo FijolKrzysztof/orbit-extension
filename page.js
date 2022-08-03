@@ -20,9 +20,9 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
 
                 if (current.targetClassName === 'js-blue-cell' && odds >= target.textContent
                     || current.targetClassName === 'js-green-cell' && odds <= target.textContent) {
-                    placeBet()
-                    makeSound()
                     clearInterval(interval)
+                    makeSound()
+                    placeBet()
                 }
             }, 1000)
         }
@@ -65,12 +65,16 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
 
         if (button) {
             button.dispatchEvent(evt)
-            placeBet()
+            setTimeout(() => {
+                placeBet()
+            }, 5000)
         }
 
         if (confirmButton) {
             confirmButton.dispatchEvent(evt)
-            placeBet()
+            setTimeout(() => {
+                placeBet()
+            }, 5000)
         }
     }
 
