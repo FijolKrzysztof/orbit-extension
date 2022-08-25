@@ -14,12 +14,20 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
             sendResponse('started')
 
             const interval = setInterval(() => {
-                const odds = priceElems[0].value
-                const target = document.getElementsByClassName(current.targetClassName)[current.elem].children[0].children[0].children[0].children[0]
+                const marginOdds = priceElems[0].value
+                const watchedOdds = document.getElementsByClassName(current.targetClassName)[current.elem].children[0].children[0].children[0].children[0]
+                const marginLayOdds = document.getElementsByClassName('biab_lay-2')[current.elem].children[0].children[0].children[0].children[0]
+                const marginBackOdds = document.getElementsByClassName('biab_back-2')[current.elem].children[0].children[0].children[0].children[0]
                 console.log('inside interval')
 
-                if (current.targetClassName === 'js-blue-cell' && odds >= target.textContent
-                    || current.targetClassName === 'js-green-cell' && odds <= target.textContent) {
+                if (current.targetClassName === 'js-blue-cell' && marginOdds < marginBackOdds) {
+                    adjustBet('up');
+                }
+                if (current.targetClassName === 'js-green-cell' && marginOdds > marginLayOdds) {
+                    adjustBet('down');
+                }
+                if (current.targetClassName === 'js-blue-cell' && marginOdds >= watchedOdds.textContent
+                    || current.targetClassName === 'js-green-cell' && marginOdds <= watchedOdds.textContent) {
                     clearInterval(interval)
                     makeSound()
                     placeBet()
@@ -51,17 +59,32 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
         }
     }
 
-    function placeBet() {
-        const button = document.getElementById('biab_placeBetsBtn')
-        const confirmButton = document.getElementById('biab_confirmBtn')
-
-        const evt = new MouseEvent("mousedown", {
+    function getMouseDownEvent() {
+        return new MouseEvent("mousedown", {
             view: window,
             bubbles: true,
             cancelable: true,
             clientX: 0,
             clientY: 0,
         });
+    }
+
+    function adjustBet(direction) {
+        const buttons = document.getElementsByClassName('biab_btn-custom-number js-price-btn');
+        const evt = getMouseDownEvent();
+        if (direction === 'up') {
+            buttons[0].dispatchEvent(evt);
+        }
+        if (direction === 'down') {
+            buttons[1].dispatchEvent(evt);
+        }
+    }
+
+    function placeBet() {
+        const button = document.getElementById('biab_placeBetsBtn')
+        const confirmButton = document.getElementById('biab_confirmBtn')
+
+        const evt = getMouseDownEvent();
 
         if (button) {
             button.dispatchEvent(evt)
