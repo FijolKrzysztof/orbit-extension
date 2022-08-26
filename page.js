@@ -18,18 +18,21 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
                 const watchedOdds = document.getElementsByClassName(current.targetClassName)[current.elem].children[0].children[0].children[0].children[0]
                 const marginLayOdds = document.getElementsByClassName('biab_lay-2')[current.elem].children[0].children[0].children[0].children[0]
                 const marginBackOdds = document.getElementsByClassName('biab_back-2')[current.elem].children[0].children[0].children[0].children[0]
+                const profitLabel = document.getElementsByClassName('js-selection-pl-wrap')[current.elem === 0 ? 1 : 0]
                 console.log('inside interval')
 
-                if (current.targetClassName === 'js-blue-cell' && marginOdds < marginBackOdds.textContent) {
-                    console.log('adjusting bet up')
-                    adjustBet('up');
+                if (parseFloat(profitLabel.textContent) === 0) {
+                    if (current.targetClassName === 'js-blue-cell' && parseFloat(marginOdds) < parseFloat(marginBackOdds.textContent)) {
+                        console.log('adjusting bet up')
+                        adjustBet('up');
+                    }
+                    if (current.targetClassName === 'js-green-cell' && parseFloat(marginOdds) > parseFloat(marginLayOdds.textContent)) {
+                        console.log('adjusting bet down')
+                        adjustBet('down');
+                    }
                 }
-                if (current.targetClassName === 'js-green-cell' && marginOdds > marginLayOdds.textContent) {
-                    console.log('adjusting bet down')
-                    adjustBet('down');
-                }
-                if (current.targetClassName === 'js-blue-cell' && marginOdds >= watchedOdds.textContent
-                    || current.targetClassName === 'js-green-cell' && marginOdds <= watchedOdds.textContent) {
+                if (current.targetClassName === 'js-blue-cell' && parseFloat(marginOdds) >= parseFloat(watchedOdds.textContent)
+                    || current.targetClassName === 'js-green-cell' && parseFloat(marginOdds) <= parseFloat(watchedOdds.textContent)) {
                     clearInterval(interval)
                     makeSound()
                     placeBet()
