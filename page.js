@@ -21,9 +21,11 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
                 console.log('inside interval')
 
                 if (current.targetClassName === 'js-blue-cell' && marginOdds < marginBackOdds) {
+                    console.log('adjusting bet up')
                     adjustBet('up');
                 }
                 if (current.targetClassName === 'js-green-cell' && marginOdds > marginLayOdds) {
+                    console.log('adjusting bet down')
                     adjustBet('down');
                 }
                 if (current.targetClassName === 'js-blue-cell' && marginOdds >= watchedOdds.textContent
