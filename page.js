@@ -12,6 +12,12 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
             sendResponse('ERROR: no closing bet')
         } else {
             sendResponse('started')
+            if (current.targetClassName === 'js-blue-cell') {
+                console.log(document.getElementsByClassName('biab_lay-0')[current.elem].children[0].children[0].children[0].children[0].textContent)
+            }
+            if (current.targetClassName === 'js-green-cell') {
+                console.log(document.getElementsByClassName('biab_back-0')[current.elem].children[0].children[0].children[0].children[0].textContent)
+            }
 
             const interval = setInterval(() => {
                 const marginOdds = priceElems[0].value
