@@ -20,11 +20,11 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
                 const marginBackOdds = document.getElementsByClassName('biab_back-2')[current.elem].children[0].children[0].children[0].children[0]
                 console.log('inside interval')
 
-                if (current.targetClassName === 'js-blue-cell' && marginOdds < marginBackOdds) {
+                if (current.targetClassName === 'js-blue-cell' && marginOdds < marginBackOdds.textContent) {
                     console.log('adjusting bet up')
                     adjustBet('up');
                 }
-                if (current.targetClassName === 'js-green-cell' && marginOdds > marginLayOdds) {
+                if (current.targetClassName === 'js-green-cell' && marginOdds > marginLayOdds.textContent) {
                     console.log('adjusting bet down')
                     adjustBet('down');
                 }
@@ -73,12 +73,11 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
 
     function adjustBet(direction) {
         const buttons = document.getElementsByClassName('biab_btn-custom-number js-price-btn');
-        const evt = getMouseDownEvent();
         if (direction === 'up') {
-            buttons[0].dispatchEvent(evt);
+            buttons[0].click();
         }
         if (direction === 'down') {
-            buttons[1].dispatchEvent(evt);
+            buttons[1].click();
         }
     }
 
