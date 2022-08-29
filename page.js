@@ -13,10 +13,10 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
         } else {
             sendResponse('started')
             if (current.targetClassName === 'js-blue-cell') {
-                console.log(document.getElementsByClassName('biab_lay-0')[current.elem].children[0].children[0].children[0].children[0].textContent)
+                console.log(document.getElementsByClassName('biab_back-0')[current.elem].children[0].children[0].children[0].children[0].textContent)
             }
             if (current.targetClassName === 'js-green-cell') {
-                console.log(document.getElementsByClassName('biab_back-0')[current.elem].children[0].children[0].children[0].children[0].textContent)
+                console.log(document.getElementsByClassName('biab_lay-0')[current.elem].children[0].children[0].children[0].children[0].textContent)
             }
 
             const interval = setInterval(() => {
@@ -24,10 +24,11 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
                 const watchedOdds = document.getElementsByClassName(current.targetClassName)[current.elem].children[0].children[0].children[0].children[0]
                 const marginLayOdds = document.getElementsByClassName('biab_lay-2')[current.elem].children[0].children[0].children[0].children[0]
                 const marginBackOdds = document.getElementsByClassName('biab_back-2')[current.elem].children[0].children[0].children[0].children[0]
-                const profitLabel = document.getElementsByClassName('js-selection-pl-wrap')[current.elem === 0 ? 1 : 0]
+                const profitLabel = convertProfitLabelToNumber(document.getElementsByClassName('js-selection-pl-wrap')[current.elem === 0 ? 1 : 0])
+
                 console.log('inside interval')
 
-                if (parseFloat(profitLabel.textContent) === 0) {
+                if (profitLabel === 0) {
                     if (current.targetClassName === 'js-blue-cell' && parseFloat(marginOdds) < parseFloat(marginBackOdds.textContent)) {
                         console.log('adjusting bet up')
                         adjustBet('up');
@@ -68,6 +69,14 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse){
         } catch (err) {
             sendResponse(elem - 1)
         }
+    }
+
+    function convertProfitLabelToNumber(profitLabel) {
+        const profilLabelArrowIndex = profitLabel.textContent.indexOf('»');
+        const profitLabelCut = profitLabel.textContent.substring(profilLabelArrowIndex + 1, profitLabel.textContent.length - 1);
+        const profitLabelFirstComma = profitLabelCut.indexOf(',');
+        const profitLabelNumber = profitLabelCut.substring(0, profitLabelFirstComma);
+        return parseFloat(profitLabelNumber)
     }
 
     function getMouseDownEvent() {
